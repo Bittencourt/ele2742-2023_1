@@ -1,4 +1,4 @@
-using JuMP, GLPK
+using JuMP, GLPK, Plots
 
 ##################################
 # Despacho economico bem simples #
@@ -155,7 +155,7 @@ funcao_objetivo = objective_value(despachoEconomico_Conjuntos)
 
 B = [1; 2; 3]
 
-d = Array[[5*sin(2*pi*t/24) + 10 for t in 1:24], [5*cos(2*pi*t/24) + 10 for t in 1:24], zeros(24)]
+d = Array[rand(24).*10, [4*cos(2*pi*t/24) + 10 for t in 1:24], zeros(24)]
 
 plot([5*sin(2*pi*t/24) + 10 for t in 1:24])
 

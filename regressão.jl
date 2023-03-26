@@ -1,6 +1,6 @@
 using JuMP, GLPK, Ipopt, CSV, DataFrames, Plots
 
-caminho_arq = raw"C:\Users\arthurbrigatto\Desktop\Aula\dados_Geração.csv" 
+caminho_arq = raw"C:\Users\pedro\Documents\Scanned Documents\Documents\PUC\progLin\ele2742-2023_1\dados_Geração.csv" 
 
 dados = CSV.read(caminho_arq, DataFrame)
 
