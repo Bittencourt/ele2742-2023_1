@@ -11,7 +11,10 @@ end
 function testFunction2(x)
     max.(log.(abs.(x)),x,exp.(x))
 end
-function benders(f,ϵ)
+function diffTestFunction(x)
+    ForwardDiff.gradient(testFunction,x)
+end
+function benders(f,df,ϵ)
     #cria o modelo JuMP
     problem = Model(GLPK.Optimizer)
 
@@ -29,7 +32,7 @@ function benders(f,ϵ)
     @variable(problem,δ)
 
     #primeiro corte definido pela restrição δ ≥ f(x0) + ∇f(x0)ᵀ(x-x0)
-    @constraint(problem,δ>=testFunction(xc[k])+ForwardDiff.gradient(testFunction,xc[k])'*(x-xc[k]))
+    @constraint(problem,δ>=testFunction(xc[k])+df(xc[k])'*(x-xc[k]))
 
     #definição do problema como min δ
     @objective(problem,Min,δ)
@@ -48,7 +51,7 @@ function benders(f,ϵ)
         insert!(xc,k,JuMP.value.(x))    #incluo o próximo X candidato no vetor de candidatos
 
         #incluo o novo corte como restrição de δ atualizado para o novo X candidato 
-        @constraint(problem,δ>=testFunction(xc[k])+ForwardDiff.gradient(testFunction,xc[k])'*(x-xc[k]))
+        @constraint(problem,δ>=testFunction(xc[k])+df(xc[k])'*(x-xc[k]))
 
         #executa a otimização
         optimize!(problem)
@@ -63,4 +66,4 @@ function benders(f,ϵ)
     return optimal
 end
 
-benders(testFunction,ϵi)
+benders(testFunction,diffTestFunction,ϵi)
