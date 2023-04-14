@@ -19,6 +19,7 @@ function benders(f,df,ϵ)
     problem = Model(GLPK.Optimizer)
 
     #incializa os valores inciais do algoritmo
+    maxIter = 1000                #maximo de iterações
     local k = 1                   #contador de iterações
     xc = Array[domainMax]         #chute inicial do valor de entrada
     LB = -Inf                     #lower bound inicial -∞
@@ -45,10 +46,9 @@ function benders(f,df,ϵ)
     UB = min(UB,f(JuMP.value.(x)))      #upper bound é o menor valor entre o UB anterior e f(xₖ₊₁) 
 
     #enquanto a diferença entre UB e LB for maior que o ϵ dado itero o método de Benders
-    while(UB-LB>ϵ)
-        k = k + 1                       #incremento o contator de iterações
-        println(JuMP.value.(x))         
-        insert!(xc,k,JuMP.value.(x))    #incluo o próximo X candidato no vetor de candidatos
+    while(UB-LB>ϵ || k<maxIter)
+        k = k + 1                       #incrementa o contator de iterações
+        insert!(xc,k,JuMP.value.(x))    #inclui o próximo X candidato no vetor de candidatos
 
         #incluo o novo corte como restrição de δ atualizado para o novo X candidato 
         @constraint(problem,δ>=testFunction(xc[k])+df(xc[k])'*(x-xc[k]))
