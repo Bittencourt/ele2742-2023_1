@@ -46,7 +46,7 @@ function benders(f,df,ϵ)
     UB = min(UB,f(JuMP.value.(x)))      #upper bound é o menor valor entre o UB anterior e f(xₖ₊₁) 
 
     #enquanto a diferença entre UB e LB for maior que o ϵ dado itero o método de Benders
-    while(UB-LB>ϵ || k<maxIter)
+    while(UB-LB>ϵ && k<maxIter)
         k = k + 1                       #incrementa o contator de iterações
         insert!(xc,k,JuMP.value.(x))    #inclui o próximo X candidato no vetor de candidatos
 
