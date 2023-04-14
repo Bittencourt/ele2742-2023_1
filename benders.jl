@@ -1,19 +1,36 @@
 using JuMP, GLPK, Plots,ForwardDiff
 
-domainMax = [2,2,1]
-domainMin = [-1/2,-1/2,-2]
+#domainMax = [2,2,1]
+#domainMin = [-1/2,-1/2,-2]
+domainMax = [2,2]
+domainMin = [-1/2,-1]
 problemDimension = length(domainMax)
 ϵi = 10^-3
 
-function testFunction(x)
+# exercicio 1,2,3 (só trocar a dimensão de x para 1, 2 e n)
+function testFunction(x)  
     sum(x[i]^2 for i=1:lastindex(x))
 end
-function testFunction2(x)
-    max.(log.(abs.(x)),x,exp.(x))
-end
+
 function diffTestFunction(x)
     ForwardDiff.gradient(testFunction,x)
 end
+
+# exercicio 4 : max de um conjunto de convexas
+function testFunction2(x)
+    y = -1000000
+    for i=1:lastindex(x) 
+        if y<max(-x[i]+3 ,x[i]+2 ,x[i]^2)
+            y = max(-x[i]+3 ,x[i]+2 ,x[i]^2)
+        end
+    end
+    return y
+end
+
+function diffTestFunction2(x)
+    ForwardDiff.gradient(testFunction2,x)
+end
+
 function benders(f,df,ϵ)
     #cria o modelo JuMP
     problem = Model(GLPK.Optimizer)
@@ -59,6 +76,9 @@ function benders(f,df,ϵ)
         #atualiza os valores de LB e UB
         LB = value(δ)                    #LB recebe o δ resultante depois de inseridos K cortes
         UB = min(UB,f(JuMP.value.(x)))   #UB é atualizado se for melhor candidato
+        println("iteration ",k," error is ",UB-LB )
+        println("Best solution is ", JuMP.value.(x))
+        println("---------------------------")
     end
     optimal = JuMP.value.(x)
     println(optimal)
@@ -67,3 +87,4 @@ function benders(f,df,ϵ)
 end
 
 benders(testFunction,diffTestFunction,ϵi)
+benders(testFunction2,diffTestFunction2,ϵi)

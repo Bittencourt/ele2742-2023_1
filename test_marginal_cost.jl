@@ -1,20 +1,29 @@
-using Plots
+using JuMP, GLPK, Plots
 
-function C(p, c, Gmax)
-    return sum(c ./ Gmax) * min.(Gmax, p / (sum(c) * Gmax))
+
+function genCost(G,d)
+    g_min =[0,0,0]
+    c = [10,50,100]
+
+    m = Model(GLPK.Optimizer)
+
+    @variable(m, g_min[i] <= g[i=1:length(g_min)] <= G[i])
+    @constraint(m, sum(g) == d)
+
+    @objective(m, Min, sum(c'*g))
+
+    optimize!(m)
+    return objective_value(m)
 end
 
-# Example problem
-p = 1000
-c = [10, 15, 20]
-Gmax = [300, 400, 500]
+function minInvest(d)
+    G_max = [1000,1000,1000]
+    G_min = [0,0,0]
+    I = [200,200,50]
+    m_i = Model(GLPK.Optimizer)
 
-# Generate points for plotting
-x = 1:1:p
-y = [C(i, c, Gmax) for i in x]
+    @variable(m_i,G_min[i] <= G[i=1:length(G_max)] <= G_max[i])
+    @objective(m_i,Min, I'*G + genCost(G,d))
 
-# Plot the functions
-plot(x, y, label="C(p)")
-xlabel!("Total demand (p)")
-ylabel!("Generation cost")
-title!("Generation cost and its derivative")
+    optimize!(m_i)
+end
