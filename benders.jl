@@ -17,6 +17,8 @@ function diffTestFunction(x)
 end
 
 # exercicio 4 : max de um conjunto de convexas
+# por que f(x) = max(g1(x),g2(x),...,gn(x)) não funciona?
+
 function testFunction2(x)
     y = -1000000
     for i=1:lastindex(x) 
