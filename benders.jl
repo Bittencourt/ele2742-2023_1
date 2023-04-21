@@ -2,8 +2,8 @@ using JuMP, GLPK, Plots,ForwardDiff
 
 #domainMax = [2,2,1]
 #domainMin = [-1/2,-1/2,-2]
-domainMax = [2,2]
-domainMin = [-1/2,-1]
+domainMax = [5,2,3]
+domainMin = [-1/2,-1,-10]
 problemDimension = length(domainMax)
 ϵi = 10^-3
 
@@ -22,8 +22,8 @@ end
 function testFunction2(x)
     y = -1000000
     for i=1:lastindex(x) 
-        if y<max(-x[i]+3 ,x[i]+2 ,x[i]^2)
-            y = max(-x[i]+3 ,x[i]+2 ,x[i]^2)
+        if y<max(-i*x[i]+3 ,x[i]+2 ,x[i]^2)
+            y = max(-i*x[i]+3 ,x[i]+2 ,x[i]^2)
         end
     end
     return y
@@ -52,7 +52,7 @@ function benders(f,df,ϵ)
     @variable(problem,δ)
 
     #primeiro corte definido pela restrição δ ≥ f(x0) + ∇f(x0)ᵀ(x-x0)
-    @constraint(problem,δ>=testFunction(xc[k])+df(xc[k])'*(x-xc[k]))
+    @constraint(problem,δ>=f(xc[k])+df(xc[k])'*(x-xc[k]))
 
     #definição do problema como min δ
     @objective(problem,Min,δ)
@@ -70,7 +70,7 @@ function benders(f,df,ϵ)
         insert!(xc,k,JuMP.value.(x))    #inclui o próximo X candidato no vetor de candidatos
 
         #incluo o novo corte como restrição de δ atualizado para o novo X candidato 
-        @constraint(problem,δ>=testFunction(xc[k])+df(xc[k])'*(x-xc[k]))
+        @constraint(problem,δ>=f(xc[k])+df(xc[k])'*(x-xc[k]))
 
         #executa a otimização
         optimize!(problem)
